@@ -6,14 +6,20 @@ public class Slot
     public bool IsEmpty => Chip == null;
     public int Index { get; private set; }
 
-    public void Initialize(int index)
+    public Slot(int index)
     {
         Index = index;
     }
 
     public void SetChip(Chip chip)
     {
-        if (IsEmpty) Chip = chip;
+        if (!IsEmpty)
+        {
+            Debug.LogError($"Slot is not empty {Index}");
+            return;
+        }
+
+        Chip = chip;
     }
 
     public void ClearChip()

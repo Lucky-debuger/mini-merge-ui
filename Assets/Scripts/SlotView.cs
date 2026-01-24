@@ -1,12 +1,11 @@
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 
 public class SlotView : MonoBehaviour
 {
-    private Slot _slotModel;
+    public Slot SlotModel { get; private set; }
 
-    public void Initialize(Slot slotModel)
+    public void Init(Slot slotModel)
     {
-        _slotModel = slotModel;
+        SlotModel = slotModel;
     }
 }
