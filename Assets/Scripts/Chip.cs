@@ -19,6 +19,6 @@ public class Chip
     {
         var next = (int)Type + 1;
         if (next > (int)ChipType.Level4) next = (int)ChipType.Level4;
-        return new Chip((ChipType)next); // [ ] Что за странная запись в скобках?
+        return new Chip((ChipType)next);
     }
 }
