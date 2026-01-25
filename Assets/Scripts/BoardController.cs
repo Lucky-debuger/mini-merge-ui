@@ -6,6 +6,7 @@ public class BoardController
     private ChipView _chipViewPrefab;
     private SlotView _slotViewPrefab;
     private Transform _contentTransform;
+    private Transform _canvasTransform;
 
     private Dictionary<int, Slot> _slotModels = new Dictionary<int, Slot>();
     private Dictionary<int, SlotView> _slotViews = new Dictionary<int, SlotView>();
@@ -13,13 +14,20 @@ public class BoardController
 
     private System.Random _random = new System.Random();
     
-    public BoardController(ChipView chipModelPrefab, SlotView slotViewPrefab, Transform contentTransform)
+    public BoardController(ChipView chipViewPrefab, SlotView slotViewPrefab, Transform contentTransform, Transform canvasTransform)
     {
         _contentTransform = contentTransform;
-        _chipViewPrefab = chipModelPrefab;
+        _canvasTransform = canvasTransform;
+        _chipViewPrefab = chipViewPrefab;
         _slotViewPrefab = slotViewPrefab;
 
         CreateSlotViews();
+        CreateChipInRandomSlot(); // [ ] Для теста не забудь удалить
+        CreateChipInRandomSlot();
+        CreateChipInRandomSlot();
+        CreateChipInRandomSlot();
+        CreateChipInRandomSlot();
+        CreateChipInRandomSlot();
     }
 
     private void CreateSlotViews()
@@ -46,15 +54,37 @@ public class BoardController
         int freeIndex = _random.Next(0, _freeSlotModels.Count);
 
         Slot slotModel = _freeSlotModels[freeIndex];
-        Chip chipModel = new Chip(ChipType.Level1);
+        Chip chipModel = new Chip(ChipType.Level0);
+
         slotModel.SetChip(chipModel);
         _freeSlotModels.Remove(slotModel);
-        ChipView chipView = GameObject.Instantiate(_chipViewPrefab, _slotViews[slotModel.Index].transform);
-        chipView.Init(chipModel);
+
+        ChipView chipView = GameObject.Instantiate
+        (
+            _chipViewPrefab, 
+            _slotViews[slotModel.Index].transform
+        );
+
+        chipView.SlotView = _slotViews[slotModel.Index];
+        chipView.Init(chipModel, _canvasTransform, this); // [ ] Стоит ли так делать?
     }
 
-    public void TryMerge()
+    public bool TryMerge(Slot fromSlot, Slot toSlot)
     {
-        
+        if (fromSlot == null || toSlot == null) return false;
+
+        if (fromSlot.Chip.Type == toSlot.Chip.Type)
+        {
+            toSlot.Chip.Upgrade();
+            fromSlot.ClearChip();
+            return true;
+        }
+        return false;
+    }
+
+    public void ChangeSlot(Slot fromSlot, Slot toSlot)
+    {
+        toSlot.SetChip(fromSlot.Chip);
+        fromSlot.ClearChip();
     }
 }

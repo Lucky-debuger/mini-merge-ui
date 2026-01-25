@@ -1,12 +1,11 @@
 using System;
 using System.Linq;
 
-public enum ChipType // [ ] Почему enum создается, как отдельный объект?
+public enum ChipType
 {
     Level0 = 0,
     Level1 = 1,
     Level2 = 2,
-    Level3 = 3,
 }
 
 public class Chip
@@ -18,11 +17,10 @@ public class Chip
         Type = chipType;
     }
 
-    public Chip Upgrade()
+    public void Upgrade()
     {
         var max = Enum.GetValues(typeof(ChipType)).Cast<ChipType>().Max(); // [ ] Как работает данная строка?
         ChipType nextType = (ChipType)Math.Min((int)Type + 1, (int)max);
-
-        return new Chip(nextType);
+        Type = nextType; // [ ] Поменял логику
     }
 }
