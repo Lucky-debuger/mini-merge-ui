@@ -7,27 +7,34 @@ public class BoardController
     private SlotView _slotViewPrefab;
     private Transform _contentTransform;
     private Transform _canvasTransform;
+    private CreateSlotButton _createSlotButton;
 
     private Dictionary<int, Slot> _slotModels = new Dictionary<int, Slot>();
     private Dictionary<int, SlotView> _slotViews = new Dictionary<int, SlotView>();
     private List<Slot> _freeSlotModels = new List<Slot>();
 
     private System.Random _random = new System.Random();
+
     
-    public BoardController(ChipView chipViewPrefab, SlotView slotViewPrefab, Transform contentTransform, Transform canvasTransform)
+    public BoardController
+    (
+        ChipView chipViewPrefab, 
+        SlotView slotViewPrefab, 
+        Transform contentTransform, 
+        Transform canvasTransform, 
+        CreateSlotButton createSlotButton
+    )
+
     {
         _contentTransform = contentTransform;
         _canvasTransform = canvasTransform;
         _chipViewPrefab = chipViewPrefab;
         _slotViewPrefab = slotViewPrefab;
+        _createSlotButton = createSlotButton;
 
         CreateSlotViews();
-        CreateChipInRandomSlot(); // [ ] Для теста не забудь удалить
-        CreateChipInRandomSlot();
-        CreateChipInRandomSlot();
-        CreateChipInRandomSlot();
-        CreateChipInRandomSlot();
-        CreateChipInRandomSlot();
+
+        _createSlotButton.OnButtonClick += CreateChipInRandomSlot;
     }
 
     private void CreateSlotViews()
@@ -48,6 +55,8 @@ public class BoardController
         if (_freeSlotModels.Count == 0)
         {
             Debug.LogError("No free slots");
+            MessageController.Instance.ShowMessage("No free slots");
+
             return;
         }
 
@@ -66,19 +75,38 @@ public class BoardController
         );
 
         chipView.SlotView = _slotViews[slotModel.Index];
-        chipView.Init(chipModel, _canvasTransform, this); // [ ] Стоит ли так делать?
+        chipView.Init(chipModel, _canvasTransform, this);
     }
 
     public bool TryMerge(Slot fromSlot, Slot toSlot)
     {
         if (fromSlot == null || toSlot == null) return false;
 
-        if (fromSlot.Chip.Type == toSlot.Chip.Type)
+        else if (fromSlot.Chip.Type != toSlot.Chip.Type)
+        {
+            Debug.LogError("Different types of slots");
+            MessageController.Instance.ShowMessage("Different types of slots");
+
+            return false;
+        }
+
+        else if (fromSlot.Chip.IsMaxLevel || toSlot.Chip.IsMaxLevel) // [ ] Осознаю, что создаю аллокация, можно сделать и другим способом
+        {
+            Debug.LogError("Max level");
+            MessageController.Instance.ShowMessage("Max level");
+
+            return false;
+        }
+
+        else if (fromSlot.Chip.Type == toSlot.Chip.Type)
         {
             toSlot.Chip.Upgrade();
             fromSlot.ClearChip();
+            _freeSlotModels.Add(fromSlot);
+
             return true;
         }
+
         return false;
     }
 
@@ -86,5 +114,9 @@ public class BoardController
     {
         toSlot.SetChip(fromSlot.Chip);
         fromSlot.ClearChip();
+
+        _freeSlotModels.Remove(toSlot);
+        _freeSlotModels.Add(fromSlot);
+
     }
 }

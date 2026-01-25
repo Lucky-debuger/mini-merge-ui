@@ -2,11 +2,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class ChipView : MonoBehaviour
 {
     public Chip ChipModel { get; private set; }
     public SlotView SlotView { get; set; }
+    
     [SerializeField] private Image image;
     [SerializeField] private Sprite[] levelSprites;
 
@@ -23,7 +25,12 @@ public class ChipView : MonoBehaviour
         ChipModel = chipModel;
         _canvasTransform = contentTransform;
         _boardController = boardController;
+
         Refresh();
+        
+        transform
+            .DOScale(1.2f, 0.1f) 
+            .SetLoops(2, LoopType.Yoyo);
     }
 
     public void Refresh()
@@ -69,13 +76,17 @@ public class ChipView : MonoBehaviour
             return;
         }
 
-        bool merged = _boardController.TryMerge(SlotView.SlotModel, slotViewUnderPointer.SlotModel); // [ ] Хорошая ли идея, что он сам обращается?
+        bool merged = _boardController.TryMerge(SlotView.SlotModel, slotViewUnderPointer.SlotModel);
 
         if (merged)
         {
             ChipView targetChipView = slotViewUnderPointer.transform.GetChild(0).GetComponent<ChipView>();
+
+            targetChipView.transform
+                .DOScale(1.2f, 0.1f) 
+                .SetLoops(2, LoopType.Yoyo);
+
             targetChipView.Refresh();
-            Debug.Log(targetChipView.ChipModel.Type);
             Destroy(this.gameObject);
         }
 
@@ -87,10 +98,14 @@ public class ChipView : MonoBehaviour
 
     private void ReturnBack()
     {
-        this.transform.localPosition = _startLocalPosition;
-        this.transform.SetParent(_startSlotView.transform, false); // [ ] Если изменить на SetParent, то появляется баг, что позиция chipview сдвигается
-        this.transform.SetAsFirstSibling();
+        transform.SetParent(_startSlotView.transform, false);
+
+        transform.DOKill();
+        transform.DOLocalMove(_startLocalPosition, 0.25f).SetEase(Ease.OutQuad);
+
+        transform.SetAsFirstSibling();
     }
+
 
     private SlotView FindSlotViewUnderPointer()
     {
