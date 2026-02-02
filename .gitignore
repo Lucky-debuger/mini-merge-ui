@@ -26,3 +26,4 @@
 # Настройки IDE
 .vs/
 .idea/
+.vscode/
