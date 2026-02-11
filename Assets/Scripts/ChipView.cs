@@ -13,7 +13,7 @@ public class ChipView : MonoBehaviour
     [SerializeField] private Sprite[] levelSprites;
 
     private bool _isDragging;
-    private Vector2 _startLocalPosition;
+    private Vector2 _startPosition;
     private SlotView _startSlotView;
 
     private Transform _canvasTransform;
@@ -49,8 +49,8 @@ public class ChipView : MonoBehaviour
     public void BeginDrag()
     {
         _isDragging = true;
-        _startLocalPosition = transform.localPosition;
         _startSlotView = SlotView;
+        _startPosition = _startSlotView.transform.position;
         this.transform.SetParent(_canvasTransform, false);
         this.transform.SetAsLastSibling();
     }
@@ -98,12 +98,13 @@ public class ChipView : MonoBehaviour
 
     private void ReturnBack()
     {
-        transform.SetParent(_startSlotView.transform, false);
-
-        transform.DOKill();
-        transform.DOLocalMove(_startLocalPosition, 0.25f).SetEase(Ease.OutQuad);
-
-        transform.SetAsFirstSibling();
+        transform.DOMove(_startPosition, 0.40f).SetEase(Ease.OutQuad).OnComplete(() =>
+        {
+            transform.SetParent(_startSlotView.transform, true);
+            transform.SetAsFirstSibling();
+        });
+        // transform.DOKill();
+        // transform.DOLocalMove(_startLocalPosition, 0.25f).SetEase(Ease.OutQuad);
     }
 
 
