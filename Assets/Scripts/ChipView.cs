@@ -15,7 +15,6 @@ public class ChipView : MonoBehaviour
     private bool _isDragging;
     private Vector2 _startPosition;
     private SlotView _startSlotView;
-
     private Transform _canvasTransform;
     private BoardController _boardController;
 

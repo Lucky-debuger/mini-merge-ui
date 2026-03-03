@@ -90,7 +90,7 @@ public class BoardController
             return false;
         }
 
-        else if (fromSlot.Chip.IsMaxLevel || toSlot.Chip.IsMaxLevel) // [ ] Осознаю, что создаю аллокация, можно сделать и другим способом
+        else if (fromSlot.Chip.IsMaxLevel || toSlot.Chip.IsMaxLevel)
         {
             Debug.LogError("Max level");
             MessageController.Instance.ShowMessage("Max level");
